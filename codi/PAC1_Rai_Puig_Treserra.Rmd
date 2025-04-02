@@ -1,5 +1,5 @@
 ---
-title: MÁSTER UNIVERSITARIO EN BIOINFORMÁTICA Y BIOESTADÍSTICA 
+title: MASTER UNIVERSITARI EN BIOINFORMÁTICA I BIOESTADÍSTICA 
 subtitle: PAC1.Analisi de Dades Omiques.
 author: "Rai Puig Treserra"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
@@ -68,7 +68,7 @@ root5<-"C:/Users/Ramon/Desktop/UOC/2_SEMESTRE/AnàlisiDeDadesOmiques/PAC1/PAC1/d
 ```
 
 
-```{r PROVA0 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=TRUE}
+```{r PROVA0 Lectura base de dades, include=T,warning=F,echo=FALSE,eval=TRUE}
 
 # Datos de expresión (matriz de conteos)
 counts <- matrix(rpois(20, lambda = 10), nrow = 5, ncol = 4)
@@ -139,7 +139,7 @@ autoplot(pca_res, data = colData(se), colour = "Condition", shape = "Batch", mai
 
 Seleccioneu i descarregueu un dataset de metabolòmica, que podeu obtenir de metabolomicsWorkbench o d 'aquest repositori de GitHub.
 
-```{r Exercici 1., include=T,warning=F,echo=TRUE}
+```{r Exercici 1., include=T,warning=F,echo=FALSE,eval=TRUE}
 
 
 # Instal·lació de paquets si cal
@@ -171,7 +171,7 @@ metadades <- read_excel(fitxer_local, sheet = "Peak")
 Crea un objecte de classe SummarizedExperiment que contingui les dades i les metadades (informació sobre el dataset, les seves files i columnes). La classe SummarizedExperiment és una extensió d' ExpressionSet, utilitzada per moltes aplicacions i bases de dades (com és el cas de 1
 metabolomicsWorkbench). Quines són les seves principals diferències amb la classe ExpressionSet?
 
-```{r Exercici2 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=TRUE}
+```{r Exercici2 Lectura base de dades, include=T,warning=F,echo=FALSE,eval=TRUE}
 
 
 
@@ -243,7 +243,7 @@ cat("SE:Optimitzat per grans volums de dades	ES:Més lent per a dades massives",
 
 Porteu a terme una anàlisi exploratòria que us proporcioni una visió general del dataset en la línia del que hem vist en les activitats d'aquest repte.
 
-```{r Exercici3 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=TRUE}
+```{r Exercici3 Lectura base de dades, include=T,warning=F,echo=FALSE,eval=TRUE}
 
 
 counts <- assay(se2, "counts")
@@ -272,24 +272,22 @@ autoplot(pca_res2, data = colData(se2), colour = "SampleType", shape = "Class", 
 #
 
 
-
+cat("A partir dels resultats , podem observar com es comporten les nostres variables 1_3-Dimethylurate,1_6-Anhydro-β-D-glucose...τ-Methylhistidine amb la variable Class i observant PATRONS!  ", "\n") 
 
 ```
+
 # Exercici 4. 
 
 Elabora un informe que descrigui el procés que heu realitzat, incloent-hi la justificació de la selecció del dataset, la seva incorporació al summarizedExperiment, l' anàlisi exploratòria de les dades i la interpretació dels resultats des del punt de vista biològic. L'extensió màxima d'aquest informe (sense tenir en compte els Annexos) ha de ser de 10 pàgines, en format PDF.
 
 
 
-```{r Exercici4 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=FALSE}
+```{r Exercici4 , include=T,warning=F,echo=FALSE,eval=FALSE}
 
 
 #Explicació:
 
 cat("Informe amb pdf", "\n") 
-
-
-
 
 ```
 
@@ -308,16 +306,8 @@ Creau un repositori de GitHub  que contingui:
   v)    les metadades acompanyades d'una breu descripció en un arxiu markdown.
 
 
-```{r Exercici5 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=TRUE}
+```{r Exercici5 , include=T,warning=F,echo=FALSE,eval=FALSE}
 
-cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
-cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
-cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
-cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
-cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
-cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
-cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
-cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
 
 
 ```
