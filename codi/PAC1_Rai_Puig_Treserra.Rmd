@@ -68,68 +68,7 @@ root5<-"C:/Users/Ramon/Desktop/UOC/2_SEMESTRE/AnàlisiDeDadesOmiques/PAC1/PAC1/d
 ```
 
 
-```{r PROVA0 Lectura base de dades, include=T,warning=F,echo=FALSE,eval=TRUE}
 
-# Datos de expresión (matriz de conteos)
-counts <- matrix(rpois(20, lambda = 10), nrow = 5, ncol = 4)
-rownames(counts) <- paste0("Gene", 1:5)
-colnames(counts) <- paste0("Sample", 1:4)
-
-# Metadatos de muestras
-sample_info <- data.frame(
-    Condition = c("Control", "Control", "Treated", "Treated"),
-    Batch = c("A", "B", "A", "B"),
-    row.names = colnames(counts)
-)
-
-# Metadatos de genes
-gene_info <- data.frame(
-    GeneID = paste0("ENSG0000", 1:5),
-    Chromosome = c("chr1", "chr1", "chr2", "chr2", "chr3"),
-    row.names = rownames(counts)
-)
-
-# Crear el objeto SummarizedExperiment
-se <- SummarizedExperiment(
-    assays = list(counts = counts),
-    colData = sample_info,
-    rowData = gene_info
-)
-
-# Mostrar el objeto
-se
-
-
-# Dimensiones de los datos
-dim(se)
-
-# Ver los primeros conteos de expresión
-head(assay(se, "counts"))
-
-# Ver los metadatos de las muestras
-head(colData(se))
-
-# Ver los metadatos de los genes
-head(rowData(se))
-
-
-counts <- assay(se, "counts")
-hist(log1p(rowMeans(counts)), breaks = 30, main = "Distribución de la Expresión Génica", xlab = "log(Conteo Medio + 1)")
-
-boxplot(log1p(counts), main = "Boxplot de Expresión", ylab = "log(Conteo + 1)", col = rainbow(ncol(counts)))
-
-# Normalización logarítmica
-log_counts <- log1p(counts)
-
-pheatmap(log1p(counts), cluster_rows = TRUE, cluster_cols = TRUE, main = "Mapa de Calor de la Expresión")
-
-
-# PCA
-pca_res <- prcomp(t(log_counts), scale. = TRUE)
-autoplot(pca_res, data = colData(se), colour = "Condition", shape = "Batch", main = "PCA de Muestras")
-
-
-```
 
 
 
@@ -172,8 +111,6 @@ Crea un objecte de classe SummarizedExperiment que contingui les dades i les met
 metabolomicsWorkbench). Quines són les seves principals diferències amb la classe ExpressionSet?
 
 ```{r Exercici2 Lectura base de dades, include=T,warning=F,echo=FALSE,eval=TRUE}
-
-
 
 # Separar metadades de mostres (colData) i dades d'assaig (assay)
 col_data <- dades[, 1:4]  # Idx, SampleID, SampleType, Class
@@ -306,8 +243,10 @@ Creau un repositori de GitHub  que contingui:
   v)    les metadades acompanyades d'una breu descripció en un arxiu markdown.
 
 
-```{r Exercici5 , include=T,warning=F,echo=FALSE,eval=FALSE}
+```{r Exercici5 , include=T,warning=F,echo=FALSE,eval=TRUE}
 
+
+saveRDS(assay_data,"assay_data.rds")
 
 
 ```
