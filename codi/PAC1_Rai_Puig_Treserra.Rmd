@@ -1,0 +1,333 @@
+---
+title: MÁSTER UNIVERSITARIO EN BIOINFORMÁTICA Y BIOESTADÍSTICA 
+subtitle: PAC1.Analisi de Dades Omiques.
+author: "Rai Puig Treserra"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+    fig_caption: yes
+  word_document:
+    toc: yes
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+&nbsp;
+<script>
+   $(document).ready(function() {
+     $head = $('#header');
+     
+   });
+</script>
+<div class="watermark">DRAFT</div>
+
+
+
+**Resultats**
+
+Dataset used in the CIMBC tutorial on "Basic Metabolomics Data Analysis Workflow"
+The tutorial describes the data as follows:
+
+•	The study used in this tutorial has been previously published as an open access article Chan et al. (2016), in the British Journal of Cancer.
+
+•	The deconvolved and annotated data file have been deposited at the Metabolomics Workbench data repository (Project ID PR000699).
+
+•	The data can be accessed directly via its project DOI:10.21228/M8B10B
+
+•	1H-NMR spectra were acquired at Canada’s National High Field Nuclear Magnetic Resonance Centre (NANUC) using a 600 MHz Varian Inova spectrometer.
+
+•	Spectral deconvolution and metabolite annotation was performed using the Chenomx NMR Suite v7.6.
+Unfortunately, the Raw NMR data is unavailable.
+
+
+
+
+```{r setup, include = TRUE, eval=TRUE}
+
+# Càrrega dels paquets:
+
+library("dplyr")
+library("readxl")
+library("SummarizedExperiment")
+library("ggplot2")
+library("pheatmap")  # Para mapas de calor
+library("ggfortify") # Para PCA
+library("tidyverse")
+
+
+
+
+
+root5<-"C:/Users/Ramon/Desktop/UOC/2_SEMESTRE/AnàlisiDeDadesOmiques/PAC1/PAC1/dades/GastricCancer_NMR.xlsx"
+
+
+```
+
+
+```{r PROVA0 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=TRUE}
+
+# Datos de expresión (matriz de conteos)
+counts <- matrix(rpois(20, lambda = 10), nrow = 5, ncol = 4)
+rownames(counts) <- paste0("Gene", 1:5)
+colnames(counts) <- paste0("Sample", 1:4)
+
+# Metadatos de muestras
+sample_info <- data.frame(
+    Condition = c("Control", "Control", "Treated", "Treated"),
+    Batch = c("A", "B", "A", "B"),
+    row.names = colnames(counts)
+)
+
+# Metadatos de genes
+gene_info <- data.frame(
+    GeneID = paste0("ENSG0000", 1:5),
+    Chromosome = c("chr1", "chr1", "chr2", "chr2", "chr3"),
+    row.names = rownames(counts)
+)
+
+# Crear el objeto SummarizedExperiment
+se <- SummarizedExperiment(
+    assays = list(counts = counts),
+    colData = sample_info,
+    rowData = gene_info
+)
+
+# Mostrar el objeto
+se
+
+
+# Dimensiones de los datos
+dim(se)
+
+# Ver los primeros conteos de expresión
+head(assay(se, "counts"))
+
+# Ver los metadatos de las muestras
+head(colData(se))
+
+# Ver los metadatos de los genes
+head(rowData(se))
+
+
+counts <- assay(se, "counts")
+hist(log1p(rowMeans(counts)), breaks = 30, main = "Distribución de la Expresión Génica", xlab = "log(Conteo Medio + 1)")
+
+boxplot(log1p(counts), main = "Boxplot de Expresión", ylab = "log(Conteo + 1)", col = rainbow(ncol(counts)))
+
+# Normalización logarítmica
+log_counts <- log1p(counts)
+
+pheatmap(log1p(counts), cluster_rows = TRUE, cluster_cols = TRUE, main = "Mapa de Calor de la Expresión")
+
+
+# PCA
+pca_res <- prcomp(t(log_counts), scale. = TRUE)
+autoplot(pca_res, data = colData(se), colour = "Condition", shape = "Batch", main = "PCA de Muestras")
+
+
+```
+
+
+
+
+
+# Exercici 1. 
+
+Seleccioneu i descarregueu un dataset de metabolòmica, que podeu obtenir de metabolomicsWorkbench o d 'aquest repositori de GitHub.
+
+```{r Exercici 1., include=T,warning=F,echo=TRUE}
+
+
+# Instal·lació de paquets si cal
+#if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+#BiocManager::install(c("SummarizedExperiment", "readxl", "tidyverse"))
+
+
+# Definir la URL del dataset a GitHub
+url <- "https://github.com/nutrimetabolomics/metaboData/raw/main/Datasets/2023-CIMCBTutorial/GastricCancer_NMR.xlsx"
+
+# Definir el nom del fitxer local
+fitxer_local <- "GastricCancer_NMR.xlsx"
+
+# Descarregar l'arxiu si no existeix localment
+if (!file.exists(fitxer_local)) {
+  download.file(url, destfile = fitxer_local, mode = "wb")
+}
+
+# Llegir el fitxer Excel (suposant que té fulls per a dades i metadades)
+dades <- read_excel(fitxer_local, sheet = "Data")
+metadades <- read_excel(fitxer_local, sheet = "Peak")
+
+
+
+```
+
+# Exercici 2. 
+
+Crea un objecte de classe SummarizedExperiment que contingui les dades i les metadades (informació sobre el dataset, les seves files i columnes). La classe SummarizedExperiment és una extensió d' ExpressionSet, utilitzada per moltes aplicacions i bases de dades (com és el cas de 1
+metabolomicsWorkbench). Quines són les seves principals diferències amb la classe ExpressionSet?
+
+```{r Exercici2 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=TRUE}
+
+
+
+# Separar metadades de mostres (colData) i dades d'assaig (assay)
+col_data <- dades[, 1:4]  # Idx, SampleID, SampleType, Class
+assay_data <- as.matrix(dades[, 5:ncol(dades)])  # Valors numèrics M1, M2, etc.
+
+# Transposar les dades per a que les característiques (M1, M2...) siguin files
+assay_data <- t(assay_data)
+
+
+rownames(assay_data) <- colnames(dades)[5:ncol(dades)]  # Noms de les característiques
+colnames(assay_data) <- dades$SampleID  # Noms de les mostres
+
+# Crear rowData (metadades de les característiques, si n'hi hagués)
+row_data <- DataFrame(feature = rownames(assay_data))
+
+# Crear l'objecte SummarizedExperiment
+se2 <- SummarizedExperiment(
+  assay = list(counts = assay_data),
+  colData = col_data,
+  rowData = row_data
+)
+
+# Resumen general
+se2
+
+# Dimensiones de los datos
+dim(se2)
+
+# Ver los primeros conteos de expresión
+head(assay(se2, "counts"))
+
+# Ver los metadatos de las muestras
+head(colData(se2))
+
+# Ver los metadatos de los genes
+head(rowData(se2))
+
+
+cat("", "\n") 
+cat("SummarizedExperiment i ExpressionSet són dos tipos d’objectes d’R utilitzats per emmagatzemar dades òmiques.", "\n") 
+cat(" Tot i que tenen funcionalitats similars, SummarizedExperiment és una versió més moderna i flexible que ha substituït en molts casos ExpressionSet.", "\n") 
+cat("A continuació, es destaquen les seves diferències principals:", "\n") 
+cat("Característica	SummarizedExperiment (SE)	ExpressionSet (ES)", "\n") 
+
+cat("SE:Bioconductor (SummarizedExperiment)	ES:Bioconductor (Biobase)", "\n") 
+cat("SE:Expressió génica, RNA-Seq, ChIP-Seq, proteòmica, metabolòmica	ES:Principalment microarrays", "\n") 
+cat("SE:Utilitza assays, rowData i colData	ES:Utilitza exprs, pData i fData", "\n")  
+cat("SE:diverses matrius, ex. counts i TPM	ES:només una matriu principa", "\n") 
+cat("SE:Més modular i compatible amb nous paquets	ES:Més rígid i dissenyat per microarrays", "\n") 
+cat("SE:Compatible amb GRanges per coordenades genòmiques	ES:No té integració directa amb dades genòmiques", "\n") 
+cat("SE:Optimitzat per grans volums de dades	ES:Més lent per a dades massives", "\n") 
+
+
+
+ 
+
+
+
+
+
+
+
+```
+
+
+# Exercici 3. 
+
+Porteu a terme una anàlisi exploratòria que us proporcioni una visió general del dataset en la línia del que hem vist en les activitats d'aquest repte.
+
+```{r Exercici3 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=TRUE}
+
+
+counts <- assay(se2, "counts")
+hist(log1p(rowMeans(counts)), breaks = 30, main = "Distribución de la Expresión Génica", xlab = "log(Conteo Medio + 1)")
+
+boxplot(log1p(counts), 
+        main = "Boxplot de Expresión", 
+        ylab = "log(Conteo + 1)", 
+        col = rainbow(ncol(counts)))
+
+# Normalización logarítmica
+log_counts2 <- log1p(counts)
+log_counts2 <- na.omit(log_counts2)
+
+
+pheatmap(log1p(counts), 
+         cluster_rows = TRUE, 
+         cluster_cols = TRUE, 
+         main = "Mapa de Calor de la Expresión")
+
+
+
+# PCA
+pca_res2 <- prcomp(t(log_counts2), scale. = TRUE)
+autoplot(pca_res2, data = colData(se2), colour = "SampleType", shape = "Class", main = "PCA de Muestras")
+#
+
+
+
+
+```
+# Exercici 4. 
+
+Elabora un informe que descrigui el procés que heu realitzat, incloent-hi la justificació de la selecció del dataset, la seva incorporació al summarizedExperiment, l' anàlisi exploratòria de les dades i la interpretació dels resultats des del punt de vista biològic. L'extensió màxima d'aquest informe (sense tenir en compte els Annexos) ha de ser de 10 pàgines, en format PDF.
+
+
+
+```{r Exercici4 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=FALSE}
+
+
+#Explicació:
+
+cat("Informe amb pdf", "\n") 
+
+
+
+
+```
+
+# Exercici 5. 
+
+Creau un repositori de GitHub  que contingui:
+
+  i)    l' informe.   
+  
+  ii)   l'objecte de classe SummarizedExperiment   que contingui les dades i les metadades en format binari (. Rda),
+  
+  iii)  el codi R per a l'exploració de les dades degudament comentat (el control de versions del mateix s'ha de realitzar amb Git)
+  
+  iv)   dades en format text i
+  
+  v)    les metadades acompanyades d'una breu descripció en un arxiu markdown.
+
+
+```{r Exercici5 Lectura base de dades, include=T,warning=F,echo=TRUE,eval=TRUE}
+
+cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
+cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
+cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
+cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
+cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
+cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
+cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
+cat("XXXXXXXXXXXXXXXXXXXXXXXXXX", "\n") 
+
+
+```
+
+
+
+
+
+
+
+
+
+
